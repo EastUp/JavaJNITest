@@ -37,7 +37,7 @@ public class HashMap<K,V> {
     /**
      *  扩容阈值（满足这个条件时扩容）
      */
-    int threshold = 8;
+    int threshold = 1 << 4; //16
 
     /**
      *  扩容因子，如何扩容
