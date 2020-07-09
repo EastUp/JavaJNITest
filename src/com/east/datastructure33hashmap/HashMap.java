@@ -34,10 +34,16 @@ public class HashMap<K,V> {
      */
     int size;
 
+
+    /**
+     *  初始大小为 16
+     */
+    final int DEFAULT_INITIAL_CAPACITY =  1 << 4;
+
     /**
      *  扩容阈值（满足这个条件时扩容）
      */
-    int threshold = 1 << 4; //16
+    int threshold;
 
     /**
      *  扩容因子，如何扩容
@@ -45,8 +51,10 @@ public class HashMap<K,V> {
     final float loadFactory = 0.75f;
 
     public V put(K key,V value){
-        if(table == null)
-            table = new MapEntry[8];
+        if(table == null){
+            table = new MapEntry[DEFAULT_INITIAL_CAPACITY];
+            threshold = (int) (DEFAULT_INITIAL_CAPACITY * loadFactory);
+        }
 
         // 是不是空
         if(key == null){
@@ -86,7 +94,7 @@ public class HashMap<K,V> {
         // 1. hash 值相等两个对象不一定相等，（两个对象不相等，hash值可能相等）
         // 2. hash 值不相等的两个对象肯定不相等
         if(size >= threshold && table[index] != null){
-            resize(size << 1);
+            resize(table.length << 1);
             // 重新计算 index
             index = getIndex(hash,table.length);
         }
@@ -140,6 +148,34 @@ public class HashMap<K,V> {
 
     private int getIndex(int hash,int length){
         return hash & length -1; // - 运算符比 & 优先级高
+    }
+
+    public V get(K key){
+        if(key == null){
+            return null;
+        }
+
+        MapEntry<K,V> entry = getEntry(key);
+        return entry == null ? null : entry.value;
+    }
+
+    private MapEntry<K, V> getEntry(K key) {
+        // 1. 找到 table 的位置
+        int hash = hash(key);
+        int index = getIndex(hash, table.length);
+
+        // 2. 判断有没有存在该 key
+        for(MapEntry<K,V> e = table[index]; e!=null; e = e.next){
+            K k;
+            if(hash == e.hash && ((k = e.key) == key || (key != null && key.equals(k)))){
+                return e;
+            }
+        }
+        return null;
+    }
+
+    public int size(){
+        return size;
     }
 
 }
